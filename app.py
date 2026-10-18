@@ -115,7 +115,14 @@ st.markdown(
         <img
             src="data:image/png;base64,{logo_base64}"
             alt="CampusFind logo"
-            style="width: 280px; max-width: 100%; height: auto;"
+            draggable="false"
+            style="
+                width: 280px;
+                max-width: 100%;
+                height: auto;
+                user-select: none;
+                -webkit-user-drag: none;
+            "
         >
     </div>
     """,
