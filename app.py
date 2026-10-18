@@ -19,6 +19,7 @@ from database import (
 )
 
 from matching import find_matches
+from admin_ui import render_admin_page
 
 def show_matches(lost_item: dict, items: list[dict]) -> None:
     """Display available matches for one lost report."""
@@ -94,6 +95,8 @@ with account_column:
             use_container_width=True,
         ):
             st.session_state["is_admin"] = False
+            st.session_state["admin_view"] = "Home"
+            st.session_state.pop("admin_notice", None)
             st.session_state["next_page"] = "Login"
             st.rerun()
     else:
@@ -391,120 +394,11 @@ elif selected_page == "Login":
             admin_password.encode("utf-8"),
         ):
             st.session_state["is_admin"] = True
+            st.session_state["admin_view"] = "Home"
             st.session_state["next_page"] = "Admin"
             st.rerun()
         else:
             st.error("Incorrect password.")
 
 elif selected_page == "Admin":
-    if not st.session_state.get("is_admin", False):
-        st.warning("Please log in first.")
-        st.stop()
-
-    st.subheader("Admin")
-        
-    st.markdown("### Delete Reports")
-
-    all_items = get_all_items()
-
-    for item in all_items:
-        with st.expander(
-            f"{item['report_type']} - {item['item_name']} "
-            f"(Report #{item['id']})"
-        ):
-            st.write(f"Status: {item['status']}")
-            st.write(f"Location: {item['location']}")
-
-            if item["status"] == "Open":
-                if st.button(
-                    "Delete Report",
-                    key=f"delete_{item['id']}",
-                ):
-                    delete_item(item["id"])
-                    st.session_state["deleted_report_id"] = item["id"]
-                    st.rerun()
-            else:
-                st.caption("Only Open reports can be deleted.")
-
-    deleted_id = st.session_state.pop("deleted_report_id", None)
-
-    if deleted_id is not None:
-        st.error(f"Report #{deleted_id} deleted.")
-        
-    st.markdown("### Manage Locations")
-
-    new_location = st.text_input(
-        "Add a new location",
-        key="new_location",
-    )
-
-    if st.button("Add Location"):
-        if add_location(new_location):
-            st.success(f"{new_location.strip()} added.")
-            st.rerun()
-        else:
-            st.warning(
-                "Enter a valid location that does not already exist."
-            )
-
-    locations = get_locations()
-
-    location_to_delete = st.selectbox(
-        "Delete a location",
-        locations,
-        key="delete_location_select",
-    )
-
-    if st.button("Delete Location"):
-        if delete_location(location_to_delete):
-            st.error(f"{location_to_delete} deleted.")
-            st.rerun()
-        else:
-            st.warning("At least one location must remain.")
-        
-    returned_id = st.session_state.pop("returned_report_id", None)
-    
-    if returned_id is not None:
-        st.success(f"Report #{returned_id} was marked Returned.")
-
-    st.caption("Verify ownership and hand over the item before marking it Returned.")
-
-    pending_items = [
-        item for item in get_all_items()
-        if item["report_type"] == "FOUND"
-        and item["status"] == "Claim Pending"
-    ]
-
-    if not pending_items:
-        st.info("No items are waiting to be returned.")
-
-    for item in pending_items:
-        with st.expander(f"{item['item_name']} (Report #{item['id']})"):
-            st.write(f"**Status:** {item['status']}")
-            st.write(f"**Location:** {item['location']}")
-
-            claims = get_claims_for_item(item["id"])
-
-            if not claims:
-                st.warning("No claim record was found for this item.")
-                continue
-
-            for claim in claims:
-                st.text(
-                    f"Name: {claim['name']}\n"
-                    f"Email: {claim['email']}\n"
-                    f"Contact: {claim['contact']}"
-                )
-
-            if st.button("Mark as Returned", key=f"return_{item['id']}"):
-                try:
-                    updated = mark_item_returned(item["id"])
-                except sqlite3.Error:
-                    st.error("The status could not be saved. Please try again.")
-                else:
-                    if updated:
-                        st.session_state["returned_report_id"] = item["id"]
-                        st.rerun()
-                    else:
-                        st.warning("This item is no longer awaiting return.")
-                            
+    render_admin_page()
