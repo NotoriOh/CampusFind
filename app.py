@@ -218,12 +218,7 @@ if selected_page == "Report an Item":
                 "Upload a photo of the found item (optional)",
                 type=["jpg", "jpeg", "png"],
             )
-
-            if uploaded_photo is not None:
-                st.write(uploaded_photo.name)
-                st.write(uploaded_photo.type)
-                st.write(uploaded_photo.size)
-
+            
         submitted = st.form_submit_button(
             "Submit Report",
             type="primary",
@@ -299,6 +294,7 @@ elif selected_page == "Browse Reports":
         status_filter = st.selectbox(
             "Status",
             ("All", "Open", "Claim Pending", "Returned"),
+            index=1,
             key="browse_status",
         )
 

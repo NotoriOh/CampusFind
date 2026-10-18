@@ -13,8 +13,6 @@ from database import (
 initialize_database()
 
 st.title("Claim This Item")
-st.page_link("app.py", label="Back to CampusFind")
-
 item_id = st.session_state.get("selected_item_id")
 
 if item_id is None:
@@ -76,3 +74,12 @@ if submitted:
                 st.success("Your claim has been submitted and is pending verification.")
             else:
                 st.warning("This item is no longer available for claiming.")
+                
+st.divider()
+
+if st.button(
+    "Back to CampusFind",
+    type="primary",
+    use_container_width=True,
+):
+    st.switch_page("app.py")
