@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Local database
+data/
+*.db
+*.db-*
+
+# Uploaded photos
+assets/images/
+
+# Secrets
+.streamlit/secrets.toml
+.env
+.env.*
+
+# Development-only files
+.agent/
+experiments/
