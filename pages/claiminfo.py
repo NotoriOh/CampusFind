@@ -78,7 +78,7 @@ if submitted:
 st.divider()
 
 if st.button(
-    "Back to CampusFind",
+    "← Back to CampusFind",
     type="primary",
     use_container_width=True,
 ):

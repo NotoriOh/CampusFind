@@ -169,7 +169,7 @@ def render_admin_page() -> None:
         st.session_state["admin_view"] = view
 
     if view != "Home":
-        st.button("Back to Admin Home", on_click=_navigate, args=("Home",))
+        st.button("← Back to Admin Home", on_click=_navigate, args=("Home",))
     title, render = screens[view]
     st.subheader(title)
     notice = st.session_state.pop("admin_notice", None)
