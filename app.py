@@ -2,6 +2,7 @@ import streamlit as st
 import hmac
 import sqlite3
 import base64
+import html
 from pathlib import Path
 
 from database import (
@@ -21,6 +22,49 @@ from database import (
 from matching import find_matches
 from admin_ui import render_admin_page
 
+def show_saved_image(image_path, caption=None):
+    path = Path(image_path) if image_path else None
+
+    if path is None or not path.is_file():
+        st.caption("Photo unavailable.")
+        return
+
+    image_types = {
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+    }
+
+    mime_type = image_types.get(path.suffix.lower())
+
+    if mime_type is None:
+        st.caption("Unsupported image format.")
+        return
+
+    try:
+        encoded = base64.b64encode(
+            path.read_bytes()
+        ).decode("utf-8")
+    except OSError:
+        st.caption("Photo could not be loaded.")
+        return
+
+    alt_text = html.escape(caption or "Item photo", quote=True)
+
+    st.markdown(
+        f"""
+        <img
+            src="data:{mime_type};base64,{encoded}"
+            alt="{alt_text}"
+            style="width:100%;height:auto;border-radius:8px;"
+        >
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if caption:
+        st.caption(caption)
+        
 def show_matches(lost_item: dict, items: list[dict]) -> None:
     """Display available matches for one lost report."""
     st.markdown("#### Possible Matches")
@@ -53,8 +97,9 @@ def show_matches(lost_item: dict, items: list[dict]) -> None:
                 st.write(found_item["description"])
 
             photo = found_item.get("image_path")
-            if photo and Path(photo).is_file():
-                st.image(photo, use_container_width=True)
+
+            if photo:
+                show_saved_image(photo)
 
             if st.button(
                 "Claim This Item",
@@ -334,11 +379,10 @@ elif selected_page == "Browse Reports":
         with st.expander(title):
             image_path = item.get("image_path")
 
-            if image_path and Path(image_path).exists():
-                st.image(
+            if image_path:
+                show_saved_image(
                     image_path,
                     caption=item["item_name"],
-                    use_container_width=True,
                 )
             else:
                 st.caption("No photo uploaded.")
