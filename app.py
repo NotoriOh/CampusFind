@@ -17,6 +17,7 @@ from database import (
     initialize_database,
     mark_item_returned,
     save_uploaded_photo,
+    seed_demo_data,
 )
 
 from matching import find_matches
@@ -122,6 +123,7 @@ st.set_page_config(
 )
 
 initialize_database()
+seed_demo_data()
 
 logo_path = Path(__file__).resolve().parent / "logo" / "CampusFind.png"
 logo_base64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")

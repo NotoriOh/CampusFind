@@ -421,3 +421,45 @@ def delete_location(name: str) -> bool:
         connection.commit()
 
     return cursor.rowcount == 1
+
+
+def seed_demo_data() -> bool:
+    """Seed a brand-new/empty SQLite DB with sample Lost & Found reports.
+
+    Existing reports are never modified. Demo photo must be kept in
+    assets/demo/airpods.jpg (a version-controlled folder).
+    Returns True if two demo reports were inserted.
+    """
+    demo_photo = BASE_DIR / "assets" / "demo" / "airpods.jpg"
+    photo_path = str(demo_photo) if demo_photo.is_file() else None
+    today = date.today().isoformat()
+
+    with closing(create_connection()) as connection, connection:
+        # A transaction avoids adding only half the demo pair.
+        connection.execute("BEGIN IMMEDIATE")
+        if connection.execute("SELECT 1 FROM items LIMIT 1").fetchone():
+            return False
+
+        connection.executemany(
+            """
+            INSERT INTO items (
+                report_type, item_name, category, color, location,
+                event_date, description, image_path
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                (
+                    "FOUND", "AirPods Pro", "Electronics", "White",
+                    "Cafeteria", today,
+                    "DEMO REPORT: White AirPods Pro found in the cafeteria.",
+                    photo_path,
+                ),
+                (
+                    "LOST", "AirPods Pro", "Electronics", "White",
+                    "Cafeteria", today,
+                    "DEMO REPORT: Lost my white AirPods Pro in the cafeteria.",
+                    None,
+                ),
+            ],
+        )
+        return True
