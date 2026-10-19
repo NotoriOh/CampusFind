@@ -52,13 +52,9 @@ def show_saved_image(image_path, caption=None):
     alt_text = html.escape(caption or "Item photo", quote=True)
 
     st.markdown(
-        f"""
-        <img
-            src="data:{mime_type};base64,{encoded}"
-            alt="{alt_text}"
-            style="width:100%;height:auto;border-radius:8px;"
-        >
-        """,
+        f'<img src="data:{mime_type};base64,{encoded}" '
+        f'alt="{alt_text}" '
+        'style="width:100%;height:auto;border-radius:8px;">',
         unsafe_allow_html=True,
     )
 
@@ -155,29 +151,12 @@ with account_column:
             st.rerun()
 
 st.markdown(
-    f"""
-    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-        <img
-            src="data:image/png;base64,{logo_base64}"
-            alt="CampusFind logo"
-            draggable="false"
-            style="
-                width: 280px;
-                max-width: 100%;
-                height: auto;
-                user-select: none;
-                -webkit-user-drag: none;
-            "
-        >
-    </div>
-    """,
+    f'<div style="display:flex;justify-content:center;margin-bottom:20px;">'
+    f'<img src="data:image/png;base64,{logo_base64}" '
+    f'alt="CampusFind logo" '
+    f'style="width:280px;max-width:100%;height:auto;">'
+    f'</div>',
     unsafe_allow_html=True,
-)
-
-st.write("Find your lost belongings. Help someone find theirs.")
-st.caption(
-    "Report a lost or found item and discover possible matches "
-    "with clear explanations."
 )
 
 if "is_admin" not in st.session_state:
